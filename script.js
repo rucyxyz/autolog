@@ -21,7 +21,7 @@ window.addEventListener('load', () => {
     const state = urlParams.get('state');
 
     if (code) {
-        loginBtn.disabled = true;
+        loginBtn.style.display = 'none';
         statusEl.textContent = '認証中...';
         sendCodeToWorker(code, state);
         window.history.replaceState(null, '', window.location.pathname);
@@ -35,23 +35,16 @@ async function sendCodeToWorker(code, state) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ code: code, state: state })
         });
-        if (!resp.ok) throw new Error('Workerへの送信に失敗');
+        if (!resp.ok) throw new Error('通信エラー');
         const result = await resp.json();
 
         if (result.success) {
-            statusEl.innerHTML = `
-                <div style="text-align:left;background:#f6f6f6;padding:12px;border-radius:8px;font-size:13px;">
-                    <strong>認証成功</strong><br>
-                    ユーザー名: ${result.username || '不明'}<br>
-                    ID: ${result.user_id || '不明'}<br>
-                    メール: ${result.email || '非公開'}
-                </div>
-            `;
+            statusEl.innerHTML = '<strong>認証が完了しました</strong>';
         } else {
             throw new Error(result.error || '不明なエラー');
         }
     } catch (error) {
         statusEl.textContent = '認証に失敗しました: ' + error.message;
-        loginBtn.disabled = false;
+        loginBtn.style.display = 'block';
     }
 }
