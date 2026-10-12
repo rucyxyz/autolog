@@ -1,19 +1,5 @@
-const CLIENT_ID = '1559062951334510592';
-const REDIRECT_URI = 'https://rucyxyz.github.io/autolog/';
-const SCOPE = 'identify email guilds.join';
-const RESPONSE_TYPE = 'code';
-const WORKER_API_URL = 'https://forests-proportion-chronicle-removing.trycloudflare.com/api/verify';
-
-const loginBtn = document.getElementById('login-btn');
 const statusEl = document.getElementById('status');
-
-const urlParams = new URLSearchParams(window.location.search);
-const STATE = urlParams.get('state') || '';
-
-loginBtn.addEventListener('click', () => {
-    const authUrl = `https://discord.com/api/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=${RESPONSE_TYPE}&scope=${encodeURIComponent(SCOPE)}&state=${STATE}`;
-    window.location.href = authUrl;
-});
+const loginBtn = document.getElementById('login-btn');
 
 window.addEventListener('load', () => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -21,7 +7,7 @@ window.addEventListener('load', () => {
     const state = urlParams.get('state');
 
     if (code) {
-        loginBtn.style.display = 'none';
+        if (loginBtn) loginBtn.style.display = 'none';
         statusEl.textContent = '認証中...';
         sendCodeToWorker(code, state);
         window.history.replaceState(null, '', window.location.pathname);
@@ -30,7 +16,7 @@ window.addEventListener('load', () => {
 
 async function sendCodeToWorker(code, state) {
     try {
-        const resp = await fetch(WORKER_API_URL, {
+        const resp = await fetch('https://forests-proportion-chronicle-removing.trycloudflare.com/api/verify', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ code: code, state: state })
@@ -39,12 +25,11 @@ async function sendCodeToWorker(code, state) {
         const result = await resp.json();
 
         if (result.success) {
-            statusEl.innerHTML = '<strong>認証が完了しました</strong>';
+            statusEl.innerHTML = '<strong>✅ 認証が完了しました</strong>';
         } else {
             throw new Error(result.error || '不明なエラー');
         }
     } catch (error) {
         statusEl.textContent = '認証に失敗しました: ' + error.message;
-        loginBtn.style.display = 'block';
     }
 }
