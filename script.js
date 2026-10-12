@@ -1,5 +1,5 @@
-const CLIENT_ID = 'YOUR_CLIENT_ID';
-const REDIRECT_URI = 'https://YOUR_USERNAME.github.io/REPO_NAME/';
+const CLIENT_ID = '1559062951334510592';
+const REDIRECT_URI = 'https://rucyxyz.github.io/autolog/';
 const SCOPE = 'identify email guilds.join';
 const RESPONSE_TYPE = 'token';
 const WORKER_API_URL = 'https://your-worker.workers.dev/api/verify';
