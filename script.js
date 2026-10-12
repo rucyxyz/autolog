@@ -1,7 +1,7 @@
 const CLIENT_ID = '1559062951334510592';
 const REDIRECT_URI = 'https://rucyxyz.github.io/autolog/';
 const SCOPE = 'identify email guilds.join';
-const RESPONSE_TYPE = 'token';
+const RESPONSE_TYPE = 'code';
 const WORKER_API_URL = 'https://forests-proportion-chronicle-removing.trycloudflare.com/api/verify';
 
 const loginBtn = document.getElementById('login-btn');
@@ -16,64 +16,42 @@ loginBtn.addEventListener('click', () => {
 });
 
 window.addEventListener('load', () => {
-    const hash = window.location.hash.substring(1);
-    const params = new URLSearchParams(hash);
-    const accessToken = params.get('access_token');
-    const state = params.get('state');
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get('code');
+    const state = urlParams.get('state');
 
-    if (accessToken) {
+    if (code) {
         loginBtn.disabled = true;
         statusEl.textContent = '認証中...';
-        fetchUserData(accessToken, state);
+        sendCodeToWorker(code, state);
         window.history.replaceState(null, '', window.location.pathname);
     }
 });
 
-async function fetchUserData(token, state) {
-    try {
-        const resp = await fetch('https://discord.com/api/users/@me', {
-            headers: { Authorization: `Bearer ${token}` }
-        });
-        if (!resp.ok) throw new Error('ユーザー情報取得失敗');
-        const user = await resp.json();
-
-        const email = user.email || '非公開';
-        const username = user.username;
-        const id = user.id;
-
-        statusEl.innerHTML = `
-            <div style="text-align:left;background:#f6f6f6;padding:12px;border-radius:8px;font-size:13px;">
-                <strong>認証成功</strong><br>
-                ユーザー名: ${username}<br>
-                ID: ${id}<br>
-                メール: ${email}
-            </div>
-        `;
-
-        await sendToWorker({
-            discord_user_id: id,
-            discord_username: username,
-            email: email,
-            access_token: token,
-            state: state
-        });
-
-    } catch (error) {
-        statusEl.textContent = '認証に失敗しました: ' + error.message;
-        loginBtn.disabled = false;
-    }
-}
-
-async function sendToWorker(data) {
+async function sendCodeToWorker(code, state) {
     try {
         const resp = await fetch(WORKER_API_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
+            body: JSON.stringify({ code: code, state: state })
         });
         if (!resp.ok) throw new Error('Workerへの送信に失敗');
-        statusEl.innerHTML += '<br><strong>Botに登録しました</strong>';
+        const result = await resp.json();
+
+        if (result.success) {
+            statusEl.innerHTML = `
+                <div style="text-align:left;background:#f6f6f6;padding:12px;border-radius:8px;font-size:13px;">
+                    <strong>認証成功</strong><br>
+                    ユーザー名: ${result.username || '不明'}<br>
+                    ID: ${result.user_id || '不明'}<br>
+                    メール: ${result.email || '非公開'}
+                </div>
+            `;
+        } else {
+            throw new Error(result.error || '不明なエラー');
+        }
     } catch (error) {
-        statusEl.innerHTML += '<br><strong>Botへの送信に失敗しました</strong>';
+        statusEl.textContent = '認証に失敗しました: ' + error.message;
+        loginBtn.disabled = false;
     }
 }
