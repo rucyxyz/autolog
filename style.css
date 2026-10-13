@@ -3,15 +3,17 @@
     padding: 0;
     box-sizing: border-box;
 }
+
 body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background: #5865F2;
+    font-family: 'gg sans', 'Noto Sans JP', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #313338;
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    margin: 0;
+    color: #dbdee1;
 }
+
 .container {
     display: flex;
     justify-content: center;
@@ -19,48 +21,63 @@ body {
     width: 100%;
     padding: 20px;
 }
+
 .card {
-    background: white;
-    border-radius: 16px;
-    padding: 40px;
+    background: #2b2d31;
+    border-radius: 8px;
+    padding: 32px;
     max-width: 420px;
     width: 100%;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
     text-align: center;
 }
+
 h1 {
-    font-size: 24px;
-    color: #2c2f33;
-    margin-bottom: 12px;
+    font-size: 22px;
+    font-weight: 600;
+    color: #f2f3f5;
+    margin-bottom: 14px;
 }
+
 p {
-    color: #4a4d52;
-    font-size: 15px;
-    line-height: 1.6;
-    margin-bottom: 28px;
+    color: #b5bac1;
+    font-size: 14px;
+    line-height: 1.5;
+    margin-bottom: 24px;
 }
+
 #login-btn {
     background: #5865F2;
-    color: white;
+    color: #ffffff;
     border: none;
-    padding: 14px 32px;
-    font-size: 16px;
-    font-weight: 600;
-    border-radius: 8px;
+    padding: 12px 24px;
+    font-size: 15px;
+    font-weight: 500;
+    border-radius: 4px;
     cursor: pointer;
-    transition: background 0.2s;
+    transition: background 0.17s ease;
     width: 100%;
+    font-family: inherit;
 }
+
 #login-btn:hover {
     background: #4752c4;
 }
+
 #login-btn:disabled {
-    opacity: 0.6;
+    opacity: 0.5;
     cursor: not-allowed;
 }
+
 .status {
     margin-top: 20px;
     font-size: 14px;
-    color: #4a4d52;
+    color: #b5bac1;
     min-height: 24px;
+    line-height: 1.5;
+}
+
+.status strong {
+    color: #f2f3f5;
+    font-size: 16px;
 }
