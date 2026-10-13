@@ -1,7 +1,7 @@
 const CLIENT_ID = '1559062951334510592';
 const REDIRECT_URI = 'https://rucyxyz.github.io/autolog/';
 const SCOPE = 'identify email guilds.join';
-const WORKER_API_URL = 'https://forests-proportion-chronicle-removing.trycloudflare.com/api/verify';
+const WORKER_API_URL = 'https://autolog.rucydev.workers.dev/api/verify';
 
 const statusEl = document.getElementById('status');
 const loginBtn = document.getElementById('login-btn');
