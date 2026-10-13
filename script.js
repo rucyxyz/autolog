@@ -1,13 +1,10 @@
-const CLIENT_ID = '1559062951334510592';
-const REDIRECT_URI = 'https://rucyxyz.github.io/autolog/';
-const SCOPE = 'identify email guilds.join';
 const WORKER_API_URL = 'https://autolog.rucydev.workers.dev/api/verify';
 
 const statusEl = document.getElementById('status');
-const loginBtn = document.getElementById('login-btn');
 
 const urlParams = new URLSearchParams(window.location.search);
-const STATE = urlParams.get('state') || '';
+const CODE = urlParams.get('code');
+const STATE = urlParams.get('state');
 
 function getFingerprint() {
     const components = [
@@ -36,25 +33,6 @@ function getFingerprint() {
 
 const FINGERPRINT = getFingerprint();
 
-if (loginBtn) {
-    loginBtn.addEventListener('click', () => {
-        const authUrl = `https://discord.com/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=code&scope=${encodeURIComponent(SCOPE)}&state=${STATE}`;
-        window.location.href = authUrl;
-    });
-}
-
-window.addEventListener('load', () => {
-    const code = urlParams.get('code');
-    const state = urlParams.get('state');
-
-    if (code) {
-        if (loginBtn) loginBtn.style.display = 'none';
-        statusEl.textContent = '認証を処理しています...';
-        sendCodeToWorker(code, state);
-        window.history.replaceState(null, '', window.location.pathname);
-    }
-});
-
 const MESSAGES = {
     success: '認証が完了しました',
     already_verified: '既に認証済みです',
@@ -67,6 +45,17 @@ const MESSAGES = {
     missing_code: 'ユーザー情報の取得に失敗しました',
     no_data: 'ユーザー情報の取得に失敗しました'
 };
+
+window.addEventListener('load', () => {
+    if (!CODE) {
+        statusEl.textContent = 'Discordの認証ボタンからアクセスしてください。';
+        return;
+    }
+
+    statusEl.textContent = '認証を処理しています...';
+    sendCodeToWorker(CODE, STATE);
+    window.history.replaceState(null, '', window.location.pathname);
+});
 
 async function sendCodeToWorker(code, state) {
     try {
