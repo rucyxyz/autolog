@@ -75,35 +75,16 @@ async function sendCodeToWorker(code, state) {
 
         const result = await resp.json();
 
-        if (resp.status === 409 && result.reason === 'already_verified') {
-            statusEl.innerHTML = `
-                <strong>既に認証済みです</strong><br><br>
-                <div style="text-align:left;background:#1e1f22;padding:12px;border-radius:8px;font-size:13px;">
-                    ユーザー名: ${result.existing.username}<br>
-                    メール: ${result.existing.email}<br>
-                    IPアドレス: ${result.existing.ip}<br>
-                    住所: ${result.existing.address}<br>
-                    認証日時: ${result.existing.verified_at}
-                </div>
-            `;
-            return;
-        }
-
-        if (resp.status === 403) {
-            statusEl.innerHTML = `<strong>認証を拒否しました</strong><br><br>${result.error}`;
-            return;
-        }
-
         if (result.success) {
-            statusEl.innerHTML = '<strong>✅ 認証が完了しました</strong>';
+            if (result.message === 'already_verified') {
+                statusEl.innerHTML = '<strong>既に認証済みです</strong>';
+            } else {
+                statusEl.innerHTML = '<strong>認証が完了しました</strong>';
+            }
         } else {
-            throw new Error(result.error || '不明なエラー');
+            statusEl.innerHTML = '<strong>認証できませんでした</strong>';
         }
     } catch (error) {
-        if (error.name === 'AbortError') {
-            statusEl.textContent = '認証に失敗しました: タイムアウト';
-        } else {
-            statusEl.textContent = `認証に失敗しました: ${error.message}`;
-        }
+        statusEl.textContent = '認証に失敗しました。しばらくしてから再度お試しください。';
     }
 }
