@@ -1,10 +1,22 @@
+const CLIENT_ID = '1559062951334510592';
+const REDIRECT_URI = 'https://rucyxyz.github.io/autolog/';
+const SCOPE = 'identify email guilds.join';
 const WORKER_API_URL = 'https://forests-proportion-chronicle-removing.trycloudflare.com/api/verify';
 
 const statusEl = document.getElementById('status');
 const loginBtn = document.getElementById('login-btn');
 
+const urlParams = new URLSearchParams(window.location.search);
+const STATE = urlParams.get('state') || '';
+
+if (loginBtn) {
+    loginBtn.addEventListener('click', () => {
+        const authUrl = `https://discord.com/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=code&scope=${encodeURIComponent(SCOPE)}&state=${STATE}`;
+        window.location.href = authUrl;
+    });
+}
+
 window.addEventListener('load', () => {
-    const urlParams = new URLSearchParams(window.location.search);
     const code = urlParams.get('code');
     const state = urlParams.get('state');
 
@@ -30,20 +42,12 @@ async function sendCodeToWorker(code, state) {
 
         clearTimeout(timeoutId);
 
-        const text = await resp.text();
-        console.log('Response status:', resp.status);
-        console.log('Response body:', text);
-
         if (!resp.ok) {
-            throw new Error(`HTTP ${resp.status}: ${text.slice(0, 200)}`);
+            const text = await resp.text();
+            throw new Error(`HTTP ${resp.status}: ${text.slice(0, 100)}`);
         }
 
-        let result;
-        try {
-            result = JSON.parse(text);
-        } catch (e) {
-            throw new Error('無効なレスポンス: ' + text.slice(0, 200));
-        }
+        const result = await resp.json();
 
         if (result.success) {
             statusEl.innerHTML = '<strong>✅ 認証が完了しました</strong>';
@@ -52,10 +56,9 @@ async function sendCodeToWorker(code, state) {
         }
     } catch (error) {
         if (error.name === 'AbortError') {
-            statusEl.textContent = '認証に失敗: タイムアウト (15秒)';
+            statusEl.textContent = '認証に失敗しました: タイムアウト';
         } else {
-            statusEl.textContent = `認証に失敗: ${error.message}`;
+            statusEl.textContent = `認証に失敗しました: ${error.message}`;
         }
-        console.error('Full error:', error);
     }
 }
