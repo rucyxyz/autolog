@@ -55,6 +55,19 @@ window.addEventListener('load', () => {
     }
 });
 
+const MESSAGES = {
+    success: '認証が完了しました',
+    already_verified: '既に認証済みです',
+    vpn_proxy: 'VPN・Proxy接続が検出されました',
+    mobile: '4G・5Gからのアクセスが検出されました',
+    duplicate: '同一IPアドレスからのアクセスが検出されました',
+    banned_ip: 'BANされたIPアドレスからのアクセスが検出されました',
+    user_info_failed: 'ユーザー情報の取得に失敗しました',
+    token_error: 'ユーザー情報の取得に失敗しました',
+    missing_code: 'ユーザー情報の取得に失敗しました',
+    no_data: 'ユーザー情報の取得に失敗しました'
+};
+
 async function sendCodeToWorker(code, state) {
     try {
         const controller = new AbortController();
@@ -74,17 +87,11 @@ async function sendCodeToWorker(code, state) {
         clearTimeout(timeoutId);
 
         const result = await resp.json();
+        const reason = result.reason || (result.success ? 'success' : 'user_info_failed');
+        const message = MESSAGES[reason] || 'ユーザー情報の取得に失敗しました';
 
-        if (result.success) {
-            if (result.message === 'already_verified') {
-                statusEl.innerHTML = '<strong>既に認証済みです</strong>';
-            } else {
-                statusEl.innerHTML = '<strong>認証が完了しました</strong>';
-            }
-        } else {
-            statusEl.innerHTML = '<strong>認証できませんでした</strong>';
-        }
+        statusEl.innerHTML = `<strong>${message}</strong>`;
     } catch (error) {
-        statusEl.textContent = '認証に失敗しました。しばらくしてから再度お試しください。';
+        statusEl.textContent = 'ユーザー情報の取得に失敗しました';
     }
 }
